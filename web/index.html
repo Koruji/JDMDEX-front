@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base href="$FLUTTER_BASE_HREF">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="JDMDex — Pokédex des voitures japonaises">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="JDMDex">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>JDMDex</title>
+  <style>
+    body {
+      background-color: #080808;
+      margin: 0;
+      padding: 0;
+    }
+    #loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #080808;
+      color: #ff1a1a;
+      font-family: system-ui, sans-serif;
+      font-size: 18px;
+      letter-spacing: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">日本車 JDMDEX</div>
+  <script>
+    window.addEventListener('flutter-first-frame', () => {
+      document.getElementById('loading').remove();
+    });
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
