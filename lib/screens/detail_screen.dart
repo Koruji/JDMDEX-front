@@ -65,7 +65,7 @@ class _DetailScreenState extends State<DetailScreen> {
             child: const Text('Annuler', style: TextStyle(color: kTextDim)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: kRed, shadowColor: kRedGlow),
+            style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, shadowColor: kRedGlow),
             onPressed: () async {
               Navigator.pop(context);
               await ApiService.deleteCar(widget.carId);
@@ -259,6 +259,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   await Navigator.push(context, MaterialPageRoute(builder: (_) => FormScreen(car: car)));
                   _load();
                 },
+                style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
                 child: const Text('Modifier'),
               ),
             ),

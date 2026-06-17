@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme.dart';
-import 'screens/grid_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +22,7 @@ class JDMDexApp extends StatelessWidget {
       title: 'JDMDex',
       theme: appTheme,
       debugShowCheckedModeBanner: false,
-      home: const GridScreen(),
+      home: const SplashScreen(),
     );
   }
 }

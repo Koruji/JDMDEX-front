@@ -238,6 +238,7 @@ class _FormScreenState extends State<FormScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _submitting ? null : _submit,
+                        style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
                         child: _submitting
                             ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                             : Text(isEdit ? 'Enregistrer les modifications' : 'Ajouter à la collection'),
@@ -307,11 +308,11 @@ class _FormScreenState extends State<FormScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: kGreen.withOpacity(0.15),
-                    border: Border.all(color: kGreen),
+                    color: kCream.withOpacity(0.15),
+                    border: Border.all(color: kCream),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Text(_aiLabel!, style: const TextStyle(color: kGreen, fontSize: 10, fontWeight: FontWeight.w700)),
+                  child: Text(_aiLabel!, style: const TextStyle(color: kCream, fontSize: 10, fontWeight: FontWeight.w700)),
                 ),
               ),
           ],
@@ -361,7 +362,7 @@ class _FormScreenState extends State<FormScreen> {
           TextField(
             controller: ctrl,
             keyboardType: type,
-            style: const TextStyle(color: kText, fontSize: 14),
+            style: const TextStyle(color: kBg, fontSize: 14),
             decoration: InputDecoration(hintText: hint),
           ),
         ],
@@ -377,8 +378,8 @@ class _FormScreenState extends State<FormScreen> {
             child: OutlinedButton.icon(
               onPressed: _getLocation,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: kGreen),
-                foregroundColor: kGreen,
+                side: const BorderSide(color: kCream),
+                foregroundColor: kCream,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -394,7 +395,7 @@ class _FormScreenState extends State<FormScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: _locationCtrl,
-              style: const TextStyle(color: kGreen, fontSize: 12),
+              style: const TextStyle(color: kCream, fontSize: 12),
               decoration: const InputDecoration(
                 hintText: 'Lieu',
                 prefixIcon: Icon(Icons.location_on, color: kGreen, size: 16),

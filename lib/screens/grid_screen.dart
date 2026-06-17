@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/car.dart';
 import '../services/api_service.dart';
 import '../widgets/car_card.dart';
@@ -96,26 +97,21 @@ class _GridScreenState extends State<GridScreen> {
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: kBg,
+          color: kCream,
           border: Border(
-            bottom: BorderSide(
-              color: kRed.withOpacity(0.4),
-              width: 1,
-            ),
+            bottom: BorderSide(color: kRed.withOpacity(0.4), width: 1),
           ),
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                border: Border.all(color: kRed),
-                borderRadius: BorderRadius.circular(4),
+            Text(
+              'JDMDex',
+              style: const TextStyle(
+                fontFamily: 'GozaruDemo',
+                color: kBg,
+                fontSize: 30,
               ),
-              child: const Text('日本車', style: TextStyle(color: kRed, fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 2)),
             ),
-            const SizedBox(width: 10),
-            const Text('JDMDex', style: TextStyle(color: kText, fontSize: 20, fontWeight: FontWeight.w800)),
             const Spacer(),
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -123,9 +119,9 @@ class _GridScreenState extends State<GridScreen> {
               children: [
                 Text(
                   _cars.length.toString().padLeft(3, '0'),
-                  style: const TextStyle(color: kGreen, fontSize: 22, fontWeight: FontWeight.w800, height: 1),
+                  style: const TextStyle(color: kRed, fontSize: 22, fontWeight: FontWeight.w800, height: 1),
                 ),
-                const Text('entries', style: TextStyle(color: kTextDim, fontSize: 10, letterSpacing: 1)),
+                const Text('entries', style: TextStyle(color: kBg, fontSize: 10, letterSpacing: 1)),
               ],
             ),
           ],
@@ -136,7 +132,7 @@ class _GridScreenState extends State<GridScreen> {
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
         child: TextField(
           onChanged: _onSearch,
-          style: const TextStyle(color: kText, fontSize: 14),
+          style: const TextStyle(color: kBg, fontSize: 14),
           decoration: const InputDecoration(
             hintText: 'Rechercher une JDM…',
             prefixIcon: Icon(Icons.search, color: kTextDim, size: 18),
@@ -181,6 +177,7 @@ class _GridScreenState extends State<GridScreen> {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _openForm,
+              style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Ajouter une voiture'),
             ),
@@ -189,7 +186,7 @@ class _GridScreenState extends State<GridScreen> {
       );
 
   Widget _buildNav() => BottomAppBar(
-        color: kBg,
+        color: kCream,
         shape: const CircularNotchedRectangle(),
         notchMargin: 8,
         child: Row(
