@@ -71,18 +71,20 @@ class _MainShellState extends State<MainShell> {
               children: [
                 Expanded(
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Expanded(child: _NavItem(icon: Icons.grid_view_rounded, label: 'Collection', active: _tab == 0, onTap: () => _switchTab(0))),
-                      Expanded(child: _NavItem(icon: Icons.event_outlined, label: 'Évènements', active: _tab == 1, badge: todayBadge, onTap: () => _switchTab(1))),
+                      _NavItem(icon: Icons.grid_view_rounded, label: 'Collection', active: _tab == 0, onTap: () => _switchTab(0)),
+                      _NavItem(icon: Icons.event_outlined, label: 'Évènements', active: _tab == 1, badge: todayBadge, onTap: () => _switchTab(1)),
                     ],
                   ),
                 ),
                 const SizedBox(width: 56),
                 Expanded(
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Expanded(child: _NavItem(icon: Icons.add_box_outlined, label: 'Manuel', active: false, onTap: _openFormManual)),
-                      Expanded(child: _NavItem(icon: Icons.person_outline, label: 'Profil', active: _tab == 2, onTap: () => _switchTab(2))),
+                      _NavItem(icon: Icons.add_box_outlined, label: 'Manuel', active: false, onTap: _openFormManual),
+                      _NavItem(icon: Icons.person_outline, label: 'Profil', active: _tab == 2, onTap: () => _switchTab(2)),
                     ],
                   ),
                 ),
@@ -125,37 +127,34 @@ class _NavItem extends StatelessWidget {
   const _NavItem({required this.icon, required this.label, required this.active, required this.onTap, this.badge = false});
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+  Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Icon(icon, color: active ? kRed : kTextMuted, size: 20),
+                  Icon(icon, color: active ? kRed : kTextMuted, size: 22),
                   if (badge)
                     Positioned(
                       top: -3,
                       right: -5,
                       child: Container(
-                        width: 7,
-                        height: 7,
+                        width: 8,
+                        height: 8,
                         decoration: const BoxDecoration(color: kRed, shape: BoxShape.circle),
                       ),
                     ),
                 ],
               ),
               const SizedBox(height: 2),
-              Text(label, style: TextStyle(color: active ? kRed : kTextMuted, fontSize: 9), maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(label, style: TextStyle(color: active ? kRed : kTextMuted, fontSize: 10)),
             ],
           ),
         ),
       );
-  }
 }
