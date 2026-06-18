@@ -24,20 +24,23 @@ class CarCard extends StatelessWidget {
         final isFav = favorites.contains(car.id);
         return GestureDetector(
           onTap: onTap,
-          child: Container(
-            decoration: BoxDecoration(
-              color: kBgCard,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: isFav ? _kGold : kBorder, width: isFav ? 1.5 : 1),
-              boxShadow: isFav ? [BoxShadow(color: _kGold.withOpacity(0.25), blurRadius: 6, spreadRadius: 0)] : null,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _buildHeader(num),
-                Expanded(child: _buildImageZone(photo, isFav)),
-                _buildStats(),
-              ],
+          child: SizedBox.expand(
+            child: Container(
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                color: kBgCard,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: isFav ? _kGold : kBorder, width: isFav ? 1.5 : 1),
+                boxShadow: isFav ? [BoxShadow(color: _kGold.withOpacity(0.25), blurRadius: 6, spreadRadius: 0)] : null,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildHeader(num),
+                  Expanded(child: _buildImageZone(photo, isFav)),
+                  _buildStats(),
+                ],
+              ),
             ),
           ),
         );
@@ -137,19 +140,20 @@ class CarCard extends StatelessWidget {
                 ),
               const Spacer(),
               if (car.location != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                  decoration: BoxDecoration(color: kRed.withOpacity(0.15), borderRadius: BorderRadius.circular(3)),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.location_on, color: kRed, size: 7),
-                      const SizedBox(width: 2),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 60),
-                        child: Text(car.location!, style: const TextStyle(color: kRed, fontSize: 7, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ),
-                    ],
+                Flexible(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(color: kRed.withOpacity(0.15), borderRadius: BorderRadius.circular(3)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.location_on, color: kRed, size: 7),
+                        const SizedBox(width: 2),
+                        Flexible(
+                          child: Text(car.location!, style: const TextStyle(color: kRed, fontSize: 7, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
             ],
@@ -177,7 +181,7 @@ class CarCard extends StatelessWidget {
               children: [
                 const Icon(Icons.person_outline, color: kTextMuted, size: 8),
                 const SizedBox(width: 2),
-                Text(car.owner!, style: const TextStyle(color: kTextMuted, fontSize: 8), maxLines: 1, overflow: TextOverflow.ellipsis),
+                Flexible(child: Text(car.owner!, style: const TextStyle(color: kTextMuted, fontSize: 8), maxLines: 1, overflow: TextOverflow.ellipsis)),
               ],
             ),
           ],
