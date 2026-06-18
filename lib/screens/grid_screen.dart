@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/car.dart';
 import '../services/api_service.dart';
+import '../services/favorites_service.dart';
 import '../widgets/car_card.dart';
 import '../theme.dart';
 import 'detail_screen.dart';
@@ -19,6 +20,7 @@ class _GridScreenState extends State<GridScreen> {
   List<Car> _filtered = [];
   bool _loading = true;
   String _query = '';
+  bool _favOnly = false;
 
   @override
   void initState() {
@@ -42,19 +44,33 @@ class _GridScreenState extends State<GridScreen> {
   }
 
   List<Car> _applyFilter(List<Car> cars, String q) {
-    if (q.isEmpty) return cars;
-    final lower = q.toLowerCase();
-    return cars.where((c) =>
-      c.name.toLowerCase().contains(lower) ||
-      (c.brand?.toLowerCase().contains(lower) ?? false) ||
-      (c.year?.toString().contains(lower) ?? false)
-    ).toList();
+    var result = cars;
+    if (_favOnly) {
+      final favs = FavoritesService.instance.favorites;
+      result = result.where((c) => favs.contains(c.id)).toList();
+    }
+    if (q.isNotEmpty) {
+      final lower = q.toLowerCase();
+      result = result.where((c) =>
+        c.name.toLowerCase().contains(lower) ||
+        (c.brand?.toLowerCase().contains(lower) ?? false) ||
+        (c.year?.toString().contains(lower) ?? false)
+      ).toList();
+    }
+    return result;
   }
 
   void _onSearch(String q) {
     setState(() {
       _query = q;
       _filtered = _applyFilter(_cars, q);
+    });
+  }
+
+  void _toggleFavFilter() {
+    setState(() {
+      _favOnly = !_favOnly;
+      _filtered = _applyFilter(_cars, _query);
     });
   }
 
@@ -130,13 +146,37 @@ class _GridScreenState extends State<GridScreen> {
 
   Widget _buildSearchBar() => Padding(
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
-        child: TextField(
-          onChanged: _onSearch,
-          style: const TextStyle(color: kBg, fontSize: 14),
-          decoration: const InputDecoration(
-            hintText: 'Rechercher une JDM…',
-            prefixIcon: Icon(Icons.search, color: kTextDim, size: 18),
-          ),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                onChanged: _onSearch,
+                style: const TextStyle(color: kBg, fontSize: 14),
+                decoration: const InputDecoration(
+                  hintText: 'Rechercher une JDM…',
+                  prefixIcon: Icon(Icons.search, color: kTextDim, size: 18),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _toggleFavFilter,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: _favOnly ? const Color(0xFFD4AF37) : kBgCard,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _favOnly ? const Color(0xFFD4AF37) : kBorder),
+                ),
+                child: Icon(
+                  _favOnly ? Icons.star : Icons.star_border,
+                  color: _favOnly ? kBg : kTextMuted,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
         ),
       );
 
@@ -147,10 +187,10 @@ class _GridScreenState extends State<GridScreen> {
         child: GridView.builder(
           padding: const EdgeInsets.all(12),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
-            childAspectRatio: 0.78,
+            crossAxisCount: 3,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 0.72,
           ),
           itemCount: _filtered.length,
           itemBuilder: (_, i) => CarCard(
@@ -177,7 +217,7 @@ class _GridScreenState extends State<GridScreen> {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _openForm,
-              style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Ajouter une voiture'),
             ),

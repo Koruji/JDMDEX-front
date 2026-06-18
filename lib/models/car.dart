@@ -97,29 +97,3 @@ class Car {
   }
 }
 
-class RecognizeResult {
-  final String brand;
-  final String name;
-  final int? year;
-  final int? horsepower;
-  final String? engine;
-  final int confidence;
-
-  const RecognizeResult({
-    required this.brand,
-    required this.name,
-    this.year,
-    this.horsepower,
-    this.engine,
-    required this.confidence,
-  });
-
-  factory RecognizeResult.fromJson(Map<String, dynamic> json) => RecognizeResult(
-        brand: json['brand'] as String,
-        name: json['name'] as String,
-        year: json['year'] as int?,
-        horsepower: json['horsepower'] as int?,
-        engine: json['engine'] as String?,
-        confidence: json['confidence'] as int,
-      );
-}
