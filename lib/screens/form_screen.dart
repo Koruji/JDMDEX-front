@@ -28,19 +28,22 @@ class _FormScreenState extends State<FormScreen> {
   final _ownerCtrl = TextEditingController();
   final _locationCtrl = TextEditingController();
 
+  static const int _maxPhotos = 5;
+
   double? _lat, _lng;
-  Uint8List? _photoBytes;
-  String? _photoName;
-  String? _photoPreviewUrl;
+  final List<({Uint8List bytes, String name})> _newPhotos = [];
   bool _submitting = false;
-  String? _aiLabel;
   String? _geoStatus;
+
+  int get _totalPhotos => (widget.car?.photos.length ?? 0) + _newPhotos.length;
 
   @override
   void initState() {
     super.initState();
     if (widget.car != null) _fillFromCar(widget.car!);
-    if (widget.openCamera) WidgetsBinding.instance.addPostFrameCallback((_) => _pickPhoto(fromCamera: true));
+    if (widget.openCamera) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _pickPhoto(fromCamera: true));
+    }
   }
 
   void _fillFromCar(Car car) {
@@ -54,20 +57,14 @@ class _FormScreenState extends State<FormScreen> {
     _locationCtrl.text = car.location ?? '';
     _lat = car.latitude;
     _lng = car.longitude;
-    final p = car.primaryPhotoOrNull;
-    if (p != null) _photoPreviewUrl = '$kUploadsBase/${p.filename}';
-  }
-
-  void _fillFromAI(RecognizeResult r) {
-    _brandCtrl.text = r.brand;
-    _nameCtrl.text = r.name;
-    if (r.year != null) _yearCtrl.text = r.year.toString();
-    if (r.horsepower != null) _hpCtrl.text = r.horsepower.toString();
-    if (r.engine != null) _engineCtrl.text = r.engine!;
-    setState(() => _aiLabel = '${r.brand} ${r.name} — ${r.confidence}% confiance');
   }
 
   Future<void> _pickPhoto({bool fromCamera = false}) async {
+    if (_totalPhotos >= _maxPhotos) {
+      _showError('Maximum $_maxPhotos photos par voiture');
+      return;
+    }
+
     final picker = ImagePicker();
     final file = fromCamera
         ? await picker.pickImage(source: ImageSource.camera, imageQuality: 85)
@@ -75,18 +72,7 @@ class _FormScreenState extends State<FormScreen> {
     if (file == null) return;
 
     final bytes = await file.readAsBytes();
-    setState(() {
-      _photoBytes = bytes;
-      _photoName = file.name;
-      _photoPreviewUrl = null;
-      _aiLabel = null;
-    });
-
-    // Recognize
-    try {
-      final result = await ApiService.recognize(bytes, file.name);
-      if (mounted) _fillFromAI(result);
-    } catch (_) {}
+    setState(() => _newPhotos.add((bytes: bytes, name: file.name)));
   }
 
   Future<void> _getLocation() async {
@@ -148,8 +134,8 @@ class _FormScreenState extends State<FormScreen> {
           'latitude': _lat,
           'longitude': _lng,
         });
-        if (_photoBytes != null) {
-          await ApiService.addPhotos(widget.car!.id, [(bytes: _photoBytes!, name: _photoName ?? 'photo.jpg')]);
+        if (_newPhotos.isNotEmpty) {
+          await ApiService.addPhotos(widget.car!.id, _newPhotos);
         }
       } else {
         await ApiService.createCar(
@@ -163,13 +149,12 @@ class _FormScreenState extends State<FormScreen> {
           location: _locationCtrl.text.isEmpty ? null : _locationCtrl.text,
           latitude: _lat,
           longitude: _lng,
-          photoBytes: _photoBytes,
-          photoName: _photoName,
+          photos: _newPhotos,
         );
       }
 
       if (mounted) Navigator.pop(context);
-    } catch (e) {
+    } catch (_) {
       _showError('Erreur lors de l\'enregistrement');
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -238,6 +223,7 @@ class _FormScreenState extends State<FormScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _submitting ? null : _submit,
+                        style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
                         child: _submitting
                             ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                             : Text(isEdit ? 'Enregistrer les modifications' : 'Ajouter à la collection'),
@@ -266,59 +252,70 @@ class _FormScreenState extends State<FormScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            Text(isEdit ? 'Modifier' : 'Nouvelle entrée',
-                style: const TextStyle(color: kText, fontSize: 18, fontWeight: FontWeight.w800)),
+            Text(
+              isEdit ? 'Modifier' : 'Nouvelle entrée',
+              style: const TextStyle(color: kText, fontSize: 18, fontWeight: FontWeight.w800),
+            ),
           ],
         ),
       );
 
   Widget _buildPhotoArea() {
-    final hasPhoto = _photoBytes != null || _photoPreviewUrl != null;
-    return GestureDetector(
-      onTap: () => _showPhotoOptions(),
-      child: Container(
-        width: double.infinity,
-        height: 200,
-        decoration: BoxDecoration(
-          color: kBgElevated,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: hasPhoto ? kBorder : kTextMuted, style: hasPhoto ? BorderStyle.solid : BorderStyle.solid),
-        ),
-        clipBehavior: Clip.hardEdge,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (_photoBytes != null)
-              Image.memory(_photoBytes!, fit: BoxFit.cover)
-            else if (_photoPreviewUrl != null)
-              Image.network(_photoPreviewUrl!, fit: BoxFit.cover)
-            else
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.add_a_photo_outlined, color: kTextMuted, size: 36),
-                  const SizedBox(height: 8),
-                  const Text('Ajouter une photo', style: TextStyle(color: kTextDim, fontSize: 12)),
-                ],
-              ),
-            if (_aiLabel != null)
-              Positioned(
-                top: 8, right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: kGreen.withOpacity(0.15),
-                    border: Border.all(color: kGreen),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(_aiLabel!, style: const TextStyle(color: kGreen, fontSize: 10, fontWeight: FontWeight.w700)),
+    final existingPhotos = widget.car?.photos ?? [];
+    final canAdd = _totalPhotos < _maxPhotos;
+
+    return SizedBox(
+      height: 140,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          ...existingPhotos.map((p) => _photoThumb(
+            child: Image.network('$kUploadsBase/${p.filename}', fit: BoxFit.cover),
+          )),
+          ..._newPhotos.map((p) => _photoThumb(
+            child: Image.memory(p.bytes, fit: BoxFit.cover),
+          )),
+          if (canAdd)
+            GestureDetector(
+              onTap: _showPhotoOptions,
+              child: Container(
+                width: 140,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: kBgElevated,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: kTextMuted),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.add_a_photo_outlined, color: kTextMuted, size: 28),
+                    const SizedBox(height: 6),
+                    Text(
+                      _totalPhotos == 0 ? 'Ajouter une photo' : '${_totalPhotos}/$_maxPhotos photos',
+                      style: const TextStyle(color: kTextMuted, fontSize: 11),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
+
+  Widget _photoThumb({required Widget child}) => Container(
+        width: 140,
+        height: 140,
+        margin: const EdgeInsets.only(right: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: kBorder),
+        ),
+        clipBehavior: Clip.hardEdge,
+        child: child,
+      );
 
   void _showPhotoOptions() {
     showModalBottomSheet(
@@ -350,7 +347,12 @@ class _FormScreenState extends State<FormScreen> {
   }
 
   Widget _buildRow(List<Widget> children) => Row(
-        children: children.map((w) => Expanded(child: w)).toList().expand((w) => [w, const SizedBox(width: 10)]).toList()..removeLast(),
+        children: children
+            .map((w) => Expanded(child: w))
+            .toList()
+            .expand((w) => [w, const SizedBox(width: 10)])
+            .toList()
+          ..removeLast(),
       );
 
   Widget _field(String label, TextEditingController ctrl, {String? hint, TextInputType? type}) => Column(
@@ -361,7 +363,7 @@ class _FormScreenState extends State<FormScreen> {
           TextField(
             controller: ctrl,
             keyboardType: type,
-            style: const TextStyle(color: kText, fontSize: 14),
+            style: const TextStyle(color: kBg, fontSize: 14),
             decoration: InputDecoration(hintText: hint),
           ),
         ],
@@ -377,8 +379,8 @@ class _FormScreenState extends State<FormScreen> {
             child: OutlinedButton.icon(
               onPressed: _getLocation,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: kGreen),
-                foregroundColor: kGreen,
+                side: const BorderSide(color: kCream),
+                foregroundColor: kCream,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
@@ -390,18 +392,15 @@ class _FormScreenState extends State<FormScreen> {
             const SizedBox(height: 6),
             Text(_geoStatus!, style: const TextStyle(color: kTextDim, fontSize: 12)),
           ],
-          if (_locationCtrl.text.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            TextField(
-              controller: _locationCtrl,
-              style: const TextStyle(color: kGreen, fontSize: 12),
-              decoration: const InputDecoration(
-                hintText: 'Lieu',
-                prefixIcon: Icon(Icons.location_on, color: kGreen, size: 16),
-              ),
-              onChanged: (v) => _locationCtrl.text = v,
+          const SizedBox(height: 8),
+          TextField(
+            controller: _locationCtrl,
+            style: const TextStyle(color: kBg, fontSize: 12),
+            decoration: const InputDecoration(
+              hintText: 'Ex : Tokyo, Japon',
+              prefixIcon: Icon(Icons.location_on, color: kRed, size: 16),
             ),
-          ],
+          ),
         ],
       );
 }

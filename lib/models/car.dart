@@ -50,18 +50,35 @@ class Car {
     required this.createdAt,
   });
 
+  static int? _toInt(dynamic v) {
+    if (v == null || v == '') return null;
+    if (v is int) return v;
+    return int.tryParse(v.toString());
+  }
+
+  static double? _toDouble(dynamic v) {
+    if (v == null || v == '') return null;
+    if (v is num) return v.toDouble();
+    return double.tryParse(v.toString());
+  }
+
+  static String? _toStr(dynamic v) {
+    if (v == null || v == '') return null;
+    return v.toString();
+  }
+
   factory Car.fromJson(Map<String, dynamic> json) => Car(
         id: json['id'] as int,
         name: json['name'] as String,
-        brand: json['brand'] as String?,
-        year: json['year'] as int?,
-        horsepower: json['horsepower'] as int?,
-        engine: json['engine'] as String?,
-        mileage: json['mileage'] as int?,
-        owner: json['owner'] as String?,
-        location: json['location'] as String?,
-        latitude: (json['latitude'] as num?)?.toDouble(),
-        longitude: (json['longitude'] as num?)?.toDouble(),
+        brand: _toStr(json['brand']),
+        year: _toInt(json['year']),
+        horsepower: _toInt(json['horsepower']),
+        engine: _toStr(json['engine']),
+        mileage: _toInt(json['mileage']),
+        owner: _toStr(json['owner']),
+        location: _toStr(json['location']),
+        latitude: _toDouble(json['latitude']),
+        longitude: _toDouble(json['longitude']),
         photos: (json['photos'] as List<dynamic>? ?? [])
             .map((p) => Photo.fromJson(p as Map<String, dynamic>))
             .toList(),
@@ -80,29 +97,3 @@ class Car {
   }
 }
 
-class RecognizeResult {
-  final String brand;
-  final String name;
-  final int? year;
-  final int? horsepower;
-  final String? engine;
-  final int confidence;
-
-  const RecognizeResult({
-    required this.brand,
-    required this.name,
-    this.year,
-    this.horsepower,
-    this.engine,
-    required this.confidence,
-  });
-
-  factory RecognizeResult.fromJson(Map<String, dynamic> json) => RecognizeResult(
-        brand: json['brand'] as String,
-        name: json['name'] as String,
-        year: json['year'] as int?,
-        horsepower: json['horsepower'] as int?,
-        engine: json['engine'] as String?,
-        confidence: json['confidence'] as int,
-      );
-}

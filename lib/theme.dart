@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-const kBg = Color(0xFF080808);
-const kBgCard = Color(0xFF111111);
-const kBgElevated = Color(0xFF161616);
-const kRed = Color(0xFFFF1A1A);
-const kRedGlow = Color(0x40FF1A1A);
+const kBg = Color(0xFF312520);
+const kBgCard = Color(0xFF261C18);
+const kBgElevated = Color(0xFF3D2D27);
+const kRed = Color(0xFFAE322A);
+const kRedGlow = Color(0x40AE322A);
 const kGreen = Color(0xFF00FF88);
 const kGreenGlow = Color(0x3300FF88);
 const kYellow = Color(0xFFFFCC00);
+const kCream = Color(0xFFFFF2DF);
 const kText = Color(0xFFE8E8E8);
 const kTextDim = Color(0xFF666666);
-const kTextMuted = Color(0xFF333333);
-const kBorder = Color(0xFF1E1E1E);
+const kTextMuted = Color(0xFF8A7A70);
+const kBorder = Color(0xFF4A3530);
 
 const kApiBase = 'http://localhost:3000/api';
 const kUploadsBase = 'http://localhost:3000/uploads';
@@ -25,7 +27,10 @@ final appTheme = ThemeData(
     surface: kBgCard,
     onSurface: kText,
   ),
-  fontFamily: 'Roboto',
+  textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme).apply(
+    bodyColor: kText,
+    displayColor: kText,
+  ),
   appBarTheme: const AppBarTheme(
     backgroundColor: kBg,
     elevation: 0,
@@ -36,9 +41,9 @@ final appTheme = ThemeData(
   dividerColor: kBorder,
   inputDecorationTheme: InputDecorationTheme(
     filled: true,
-    fillColor: kBgElevated,
+    fillColor: kCream,
     hintStyle: const TextStyle(color: kTextMuted),
-    labelStyle: const TextStyle(color: kTextDim, fontSize: 11),
+    labelStyle: const TextStyle(color: kBg, fontSize: 11),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: const BorderSide(color: kBorder),
@@ -59,7 +64,7 @@ final appTheme = ThemeData(
     ),
   ),
   bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-    backgroundColor: kBg,
+    backgroundColor: kCream,
     selectedItemColor: kRed,
     unselectedItemColor: kTextMuted,
     type: BottomNavigationBarType.fixed,
