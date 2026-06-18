@@ -57,27 +57,19 @@ class _EventScreenState extends State<EventScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: kBgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: kBorder)),
-        title: const Text('Supprimer cet évènement ?', style: TextStyle(color: kText, fontSize: 15, fontWeight: FontWeight.w800)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: kBorder)),
+        title: const Text('Supprimer cet évènement ?', style: TextStyle(color: kText, fontSize: 16, fontWeight: FontWeight.w700)),
         content: Text('"${event.name}" sera supprimé définitivement.', style: const TextStyle(color: kTextDim, fontSize: 13)),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
-          Row(children: [
-            Expanded(child: OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(side: const BorderSide(color: kBorder), foregroundColor: kTextDim, padding: const EdgeInsets.symmetric(vertical: 12), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-              child: const Text('Annuler', maxLines: 1),
-            )),
-            const SizedBox(width: 10),
-            Expanded(child: ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await EventsService.instance.delete(event.id);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 12), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-              child: const Text('Supprimer', maxLines: 1),
-            )),
-          ]),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler', style: TextStyle(color: kTextDim))),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+            onPressed: () async {
+              Navigator.pop(context);
+              await EventsService.instance.delete(event.id);
+            },
+            child: const Text('Supprimer'),
+          ),
         ],
       ),
     );
@@ -442,7 +434,7 @@ class _EventFormState extends State<_EventForm> {
     );
   }
 
-  String _fmt(DateTime d) => '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
+  String _fmt(DateTime d) => '${d.day.toString().padLeft(2, '0')} / ${d.month.toString().padLeft(2, '0')} / ${d.year}';
 }
 
 // ─── Date range popup ───
@@ -518,28 +510,16 @@ class _DateRangeDialogState extends State<_DateRangeDialog> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: kBorder),
-                      foregroundColor: kTextDim,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      minimumSize: const Size(0, 44),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: const Text('Annuler', maxLines: 1),
+                    style: OutlinedButton.styleFrom(side: const BorderSide(color: kBorder), foregroundColor: kTextDim),
+                    child: const Text('Annuler'),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context, (_start, _end)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kRed,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      minimumSize: const Size(0, 44),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: const Text('Confirmer', maxLines: 1),
+                    style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
+                    child: const Text('Confirmer'),
                   ),
                 ),
               ],
@@ -561,8 +541,8 @@ class _DateRangeDialogState extends State<_DateRangeDialog> {
               Text(label, style: const TextStyle(color: kTextMuted, fontSize: 10, letterSpacing: 0.5)),
               const SizedBox(height: 4),
               Text(
-                '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}',
-                style: const TextStyle(color: kText, fontSize: 13, fontWeight: FontWeight.w700),
+                '${date.day.toString().padLeft(2, '0')} / ${date.month.toString().padLeft(2, '0')} / ${date.year}',
+                style: const TextStyle(color: kText, fontSize: 12, fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -616,24 +596,16 @@ class _EventDetailState extends State<_EventDetail> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: kBgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: kBorder)),
-        title: const Text('Modifier le commentaire', style: TextStyle(color: kText, fontSize: 15, fontWeight: FontWeight.w800)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: kBorder)),
+        title: const Text('Modifier le commentaire', style: TextStyle(color: kText, fontSize: 14, fontWeight: FontWeight.w700)),
         content: TextField(controller: ctrl, style: const TextStyle(color: kBg), autofocus: true, maxLines: 3, decoration: const InputDecoration(hintText: 'Commentaire')),
-        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
-          Row(children: [
-            Expanded(child: OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              style: OutlinedButton.styleFrom(side: const BorderSide(color: kBorder), foregroundColor: kTextDim, padding: const EdgeInsets.symmetric(vertical: 12), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-              child: const Text('Annuler', maxLines: 1),
-            )),
-            const SizedBox(width: 10),
-            Expanded(child: ElevatedButton(
-              onPressed: () => Navigator.pop(context, ctrl.text.trim()),
-              style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 12), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-              child: const Text('Enregistrer', maxLines: 1),
-            )),
-          ]),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler', style: TextStyle(color: kTextDim))),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, ctrl.text.trim()),
+            style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
+            child: const Text('Enregistrer'),
+          ),
         ],
       ),
     );
