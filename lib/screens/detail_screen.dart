@@ -120,11 +120,8 @@ class _DetailScreenState extends State<DetailScreen> {
               onTap: () => Navigator.pop(context),
               child: Container(
                 width: 36, height: 36,
-                decoration: BoxDecoration(
-                  color: kBgElevated, shape: BoxShape.circle,
-                  border: Border.all(color: kBorder),
-                ),
-                child: const Icon(Icons.arrow_back_ios_new, size: 14, color: kText),
+                decoration: const BoxDecoration(color: kCream, shape: BoxShape.circle),
+                child: const Icon(Icons.arrow_back_ios_new, size: 14, color: kBg),
               ),
             ),
             const SizedBox(width: 12),

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../models/car.dart';
 import '../services/api_service.dart';
 import '../services/favorites_service.dart';
 import '../widgets/car_card.dart';
 import '../theme.dart';
 import 'detail_screen.dart';
-import 'form_screen.dart';
 
 class GridScreen extends StatefulWidget {
-  const GridScreen({super.key});
+  final VoidCallback? onAddManual;
+  const GridScreen({super.key, this.onAddManual});
 
   @override
-  State<GridScreen> createState() => _GridScreenState();
+  State<GridScreen> createState() => GridScreenState();
 }
 
-class _GridScreenState extends State<GridScreen> {
+class GridScreenState extends State<GridScreen> {
+  void reload() => _load();
   List<Car> _cars = [];
   List<Car> _filtered = [];
   bool _loading = true;
@@ -79,33 +79,22 @@ class _GridScreenState extends State<GridScreen> {
     _load();
   }
 
-  Future<void> _openForm() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (_) => const FormScreen()));
-    _load();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBg,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildSearchBar(),
-            Expanded(
-              child: _loading
-                  ? const Center(child: CircularProgressIndicator(color: kRed))
-                  : _cars.isEmpty
-                      ? _buildEmpty()
-                      : _buildGrid(),
-            ),
-          ],
-        ),
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildHeader(),
+          _buildSearchBar(),
+          Expanded(
+            child: _loading
+                ? const Center(child: CircularProgressIndicator(color: kRed))
+                : _cars.isEmpty
+                    ? _buildEmpty()
+                    : _buildGrid(),
+          ),
+        ],
       ),
-      bottomNavigationBar: _buildNav(),
-      floatingActionButton: _buildCameraFab(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 
@@ -216,7 +205,7 @@ class _GridScreenState extends State<GridScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton.icon(
-              onPressed: _openForm,
+              onPressed: widget.onAddManual,
               style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
               icon: const Icon(Icons.add, size: 18),
               label: const Text('Ajouter une voiture'),
@@ -225,60 +214,4 @@ class _GridScreenState extends State<GridScreen> {
         ),
       );
 
-  Widget _buildNav() => BottomAppBar(
-        color: kCream,
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _NavItem(icon: Icons.grid_view_rounded, label: 'Collection', active: true, onTap: () {}),
-            const SizedBox(width: 56),
-            _NavItem(icon: Icons.add_box_outlined, label: 'Manuel', onTap: _openForm),
-          ],
-        ),
-      );
-
-  Widget _buildCameraFab() => Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: kRed,
-          boxShadow: [BoxShadow(color: kRedGlow, blurRadius: 20, spreadRadius: 2)],
-        ),
-        child: IconButton(
-          onPressed: () async {
-            await Navigator.push(context, MaterialPageRoute(builder: (_) => const FormScreen(openCamera: true)));
-            _load();
-          },
-          icon: const Icon(Icons.camera_alt, color: Colors.white, size: 24),
-        ),
-      );
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-
-  const _NavItem({required this.icon, required this.label, this.active = false, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: onTap,
-        behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: active ? kRed : kTextMuted, size: 22),
-              const SizedBox(height: 2),
-              Text(label, style: TextStyle(color: active ? kRed : kTextMuted, fontSize: 10)),
-            ],
-          ),
-        ),
-      );
 }

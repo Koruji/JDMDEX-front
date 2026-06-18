@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
-import 'grid_screen.dart';
+import 'main_shell.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -96,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (status == AnimationStatus.completed && mounted) {
         Navigator.of(context).pushReplacement(
           PageRouteBuilder<void>(
-            pageBuilder: (_, __, ___) => const GridScreen(),
+            pageBuilder: (_, __, ___) => const MainShell(),
             transitionDuration: const Duration(milliseconds: 500),
             transitionsBuilder: (_, anim, __, child) =>
                 FadeTransition(opacity: anim, child: child),
