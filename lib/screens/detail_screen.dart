@@ -58,23 +58,28 @@ class _DetailScreenState extends State<DetailScreen> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: kBgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: kBorder)),
-        title: const Text('Supprimer cette entrée ?', style: TextStyle(color: kText, fontSize: 16, fontWeight: FontWeight.w700)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: kBorder)),
+        title: const Text('Supprimer cette entrée ?', style: TextStyle(color: kText, fontSize: 15, fontWeight: FontWeight.w800)),
         content: Text('"${_car?.name}" sera supprimée définitivement.', style: const TextStyle(color: kTextDim, fontSize: 13)),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Annuler', style: TextStyle(color: kTextDim)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, shadowColor: kRedGlow, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
-            onPressed: () async {
-              Navigator.pop(context);
-              await ApiService.deleteCar(widget.carId);
-              if (mounted) Navigator.pop(context);
-            },
-            child: const Text('Supprimer'),
-          ),
+          Row(children: [
+            Expanded(child: OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              style: OutlinedButton.styleFrom(side: const BorderSide(color: kBorder), foregroundColor: kTextDim, padding: const EdgeInsets.symmetric(vertical: 12), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              child: const Text('Annuler', maxLines: 1),
+            )),
+            const SizedBox(width: 10),
+            Expanded(child: ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await ApiService.deleteCar(widget.carId);
+                if (mounted) Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, shadowColor: kRedGlow, padding: const EdgeInsets.symmetric(vertical: 12), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              child: const Text('Supprimer', maxLines: 1),
+            )),
+          ]),
         ],
       ),
     );
