@@ -175,8 +175,9 @@ class GridScreenState extends State<GridScreen> {
         onRefresh: _load,
         child: GridView.builder(
           padding: const EdgeInsets.all(12),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            // ignore: avoid_dynamic_calls
+            crossAxisCount: MediaQuery.sizeOf(context).width < 400 ? 2 : 3,
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
             childAspectRatio: 0.72,
