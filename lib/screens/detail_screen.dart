@@ -400,7 +400,7 @@ class _CarouselState extends State<_Carousel> {
                     itemCount: widget.photos.length,
                     onPageChanged: (i) => setState(() => _current = i),
                     itemBuilder: (_, i) {
-                      final url = '$kUploadsBase/${widget.photos[i].filename}';
+                      final url = widget.photos[i].url ?? '$kUploadsBase/${widget.photos[i].filename}';
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: ClipRRect(

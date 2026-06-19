@@ -270,7 +270,7 @@ class _FormScreenState extends State<FormScreen> {
         scrollDirection: Axis.horizontal,
         children: [
           ...existingPhotos.map((p) => _photoThumb(
-            child: Image.network('$kUploadsBase/${p.filename}', fit: BoxFit.cover),
+            child: Image.network(p.url ?? '$kUploadsBase/${p.filename}', fit: BoxFit.cover),
           )),
           ..._newPhotos.map((p) => _photoThumb(
             child: Image.memory(p.bytes, fit: BoxFit.cover),

@@ -3,12 +3,14 @@ class Photo {
   final int carId;
   final String filename;
   final bool isPrimary;
+  final String? url;
 
   const Photo({
     required this.id,
     required this.carId,
     required this.filename,
     required this.isPrimary,
+    this.url,
   });
 
   factory Photo.fromJson(Map<String, dynamic> json) => Photo(
@@ -16,6 +18,7 @@ class Photo {
         carId: json['car_id'] as int,
         filename: json['filename'] as String,
         isPrimary: json['is_primary'] == 1 || json['is_primary'] == true,
+        url: json['url'] as String?,
       );
 }
 
@@ -33,6 +36,7 @@ class Car {
   final double? longitude;
   final List<Photo> photos;
   final String createdAt;
+  final bool liked;
 
   const Car({
     required this.id,
@@ -48,6 +52,7 @@ class Car {
     this.longitude,
     this.photos = const [],
     required this.createdAt,
+    this.liked = false,
   });
 
   static int? _toInt(dynamic v) {
@@ -83,6 +88,7 @@ class Car {
             .map((p) => Photo.fromJson(p as Map<String, dynamic>))
             .toList(),
         createdAt: json['created_at'] as String? ?? '',
+        liked: json['liked'] == true || json['liked'] == 1,
       );
 
   Photo? get primaryPhoto =>
