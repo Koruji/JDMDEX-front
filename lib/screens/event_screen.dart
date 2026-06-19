@@ -325,17 +325,30 @@ class _EventFormState extends State<_EventForm> {
 
   Future<void> _submit() async {
     if (_nameCtrl.text.trim().isEmpty) return;
-    final event = CarEvent(
-      id: widget.event?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      name: _nameCtrl.text.trim(),
-      dateStart: _dateStart,
-      dateEnd: _dateEnd,
-      location: _locationCtrl.text.trim().isEmpty ? null : _locationCtrl.text.trim(),
-      type: _type,
-      notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
-    );
-    await EventsService.instance.save(event);
-    if (mounted) Navigator.pop(context);
+    final name = _nameCtrl.text.trim();
+    final location = _locationCtrl.text.trim().isEmpty ? null : _locationCtrl.text.trim();
+    final notes = _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim();
+    try {
+      if (widget.event == null) {
+        await EventsService.instance.create(
+          name: name, dateStart: _dateStart, dateEnd: _dateEnd,
+          location: location, type: _type, notes: notes,
+        );
+      } else {
+        await EventsService.instance.update(
+          widget.event!.id,
+          name: name, dateStart: _dateStart, dateEnd: _dateEnd,
+          location: location, type: _type, notes: notes,
+        );
+      }
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur : $e'), backgroundColor: kRed),
+        );
+      }
+    }
   }
 
   @override
@@ -434,7 +447,7 @@ class _EventFormState extends State<_EventForm> {
     );
   }
 
-  String _fmt(DateTime d) => '${d.day.toString().padLeft(2, '0')} / ${d.month.toString().padLeft(2, '0')} / ${d.year}';
+  String _fmt(DateTime d) => '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';
 }
 
 // ─── Date range popup ───
@@ -569,6 +582,7 @@ class _EventDetailState extends State<_EventDetail> {
   void initState() {
     super.initState();
     _event = widget.event;
+    _loadComments();
   }
 
   @override
@@ -577,17 +591,21 @@ class _EventDetailState extends State<_EventDetail> {
     super.dispose();
   }
 
+  Future<void> _loadComments() async {
+    try {
+      final comments = await EventsService.instance.loadComments(_event.id);
+      if (mounted) setState(() => _event = _event.copyWith(comments: comments));
+    } catch (_) {}
+  }
+
   Future<void> _addComment() async {
     final text = _commentCtrl.text.trim();
     if (text.isEmpty) return;
-    final comment = EventComment(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      text: text,
-      createdAt: DateTime.now(),
-    );
-    final updated = _event.copyWith(comments: [..._event.comments, comment]);
-    await EventsService.instance.save(updated);
-    setState(() { _event = updated; _commentCtrl.clear(); });
+    final comment = await EventsService.instance.addComment(_event.id, text);
+    setState(() {
+      _event = _event.copyWith(comments: [..._event.comments, comment]);
+      _commentCtrl.clear();
+    });
   }
 
   Future<void> _editComment(EventComment comment) async {
@@ -596,32 +614,42 @@ class _EventDetailState extends State<_EventDetail> {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: kBgCard,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: kBorder)),
-        title: const Text('Modifier le commentaire', style: TextStyle(color: kText, fontSize: 14, fontWeight: FontWeight.w700)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: kBorder)),
+        title: const Text('Modifier le commentaire', style: TextStyle(color: kText, fontSize: 15, fontWeight: FontWeight.w800)),
         content: TextField(controller: ctrl, style: const TextStyle(color: kBg), autofocus: true, maxLines: 3, decoration: const InputDecoration(hintText: 'Commentaire')),
+        actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler', style: TextStyle(color: kTextDim))),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, ctrl.text.trim()),
-            style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white),
-            child: const Text('Enregistrer'),
-          ),
+          Row(children: [
+            Expanded(child: OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              style: OutlinedButton.styleFrom(side: const BorderSide(color: kBorder), foregroundColor: kTextDim, padding: const EdgeInsets.symmetric(vertical: 12), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              child: const Text('Annuler', maxLines: 1),
+            )),
+            const SizedBox(width: 10),
+            Expanded(child: ElevatedButton(
+              onPressed: () => Navigator.pop(context, ctrl.text.trim()),
+              style: ElevatedButton.styleFrom(backgroundColor: kRed, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 12), tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+              child: const Text('Enregistrer', maxLines: 1),
+            )),
+          ]),
         ],
       ),
     );
     ctrl.dispose();
     if (result == null || result.isEmpty) return;
-    final updatedComments = _event.comments.map((c) => c.id == comment.id ? EventComment(id: c.id, text: result, createdAt: c.createdAt) : c).toList();
-    final updated = _event.copyWith(comments: updatedComments);
-    await EventsService.instance.save(updated);
-    setState(() => _event = updated);
+    final updated = await EventsService.instance.editComment(_event.id, comment.id, result);
+    setState(() {
+      _event = _event.copyWith(
+        comments: _event.comments.map((c) => c.id == comment.id ? updated : c).toList(),
+      );
+    });
   }
 
   Future<void> _deleteComment(EventComment comment) async {
-    final updatedComments = _event.comments.where((c) => c.id != comment.id).toList();
-    final updated = _event.copyWith(comments: updatedComments);
-    await EventsService.instance.save(updated);
-    setState(() => _event = updated);
+    await EventsService.instance.deleteComment(_event.id, comment.id);
+    setState(() {
+      _event = _event.copyWith(comments: _event.comments.where((c) => c.id != comment.id).toList());
+    });
   }
 
   @override

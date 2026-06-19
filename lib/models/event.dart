@@ -18,9 +18,9 @@ class EventComment {
   Map<String, dynamic> toJson() => {'id': id, 'text': text, 'createdAt': createdAt.toIso8601String()};
 
   factory EventComment.fromJson(Map<String, dynamic> j) => EventComment(
-        id: j['id'] as String,
+        id: j['id'].toString(),
         text: j['text'] as String,
-        createdAt: DateTime.parse(j['createdAt'] as String),
+        createdAt: DateTime.parse((j['created_at'] ?? j['createdAt']) as String),
       );
 }
 
@@ -75,10 +75,14 @@ class CarEvent {
       };
 
   factory CarEvent.fromJson(Map<String, dynamic> j) {
-    final start = DateTime.parse((j['dateStart'] ?? j['date']) as String);
-    final end = j['dateEnd'] != null ? DateTime.parse(j['dateEnd'] as String) : start;
+    // Backend list uses date_start/date_end, detail uses dateStart/dateEnd
+    final start = DateTime.parse(
+      (j['date_start'] ?? j['dateStart'] ?? j['date']) as String,
+    );
+    final rawEnd = j['date_end'] ?? j['dateEnd'];
+    final end = rawEnd != null ? DateTime.parse(rawEnd as String) : start;
     return CarEvent(
-      id: j['id'] as String,
+      id: j['id'].toString(),
       name: j['name'] as String,
       dateStart: start,
       dateEnd: end,

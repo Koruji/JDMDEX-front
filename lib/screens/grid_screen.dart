@@ -31,6 +31,9 @@ class GridScreenState extends State<GridScreen> {
   Future<void> _load() async {
     try {
       final cars = await ApiService.getCars();
+      // Sync liked state into FavoritesService from fresh data
+      FavoritesService.instance.notifier.value =
+          cars.where((c) => c.liked).map((c) => c.id).toSet();
       if (mounted) {
         setState(() {
           _cars = cars;

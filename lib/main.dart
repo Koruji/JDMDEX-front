@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme.dart';
 import 'screens/splash_screen.dart';
+import 'services/auth_service.dart';
 import 'services/favorites_service.dart';
 import 'services/events_service.dart';
 import 'services/user_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FavoritesService.instance.load();
-  await EventsService.instance.load();
-  await UserService.instance.load();
+  await AuthService.instance.load();
+  if (AuthService.instance.isLoggedIn) {
+    await Future.wait([
+      FavoritesService.instance.load(),
+      EventsService.instance.load(),
+      UserService.instance.load(),
+    ]);
+  }
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,

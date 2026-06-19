@@ -22,7 +22,8 @@ class AppUser {
       };
 
   factory AppUser.fromJson(Map<String, dynamic> j) => AppUser(
-        userId: j['user_id'] as int?,
+        // Backend returns id, local storage used user_id
+        userId: (j['id'] ?? j['user_id']) as int?,
         username: j['username'] as String? ?? '',
         email: j['email'] as String? ?? '',
         socialMedia: j['social_media'] as String?,

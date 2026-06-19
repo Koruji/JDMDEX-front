@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/auth_service.dart';
 import '../theme.dart';
+import 'login_screen.dart';
 import 'main_shell.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -94,9 +96,12 @@ class _SplashScreenState extends State<SplashScreen>
 
     _ctrl.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
+        final dest = AuthService.instance.isLoggedIn
+            ? const MainShell()
+            : const LoginScreen();
         Navigator.of(context).pushReplacement(
           PageRouteBuilder<void>(
-            pageBuilder: (_, __, ___) => const MainShell(),
+            pageBuilder: (_, __, ___) => dest,
             transitionDuration: const Duration(milliseconds: 500),
             transitionsBuilder: (_, anim, __, child) =>
                 FadeTransition(opacity: anim, child: child),

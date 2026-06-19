@@ -3,12 +3,16 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import '../models/car.dart';
 import '../theme.dart';
+import 'auth_service.dart';
 
 class ApiService {
   static const _base = kApiBase;
 
+  static Map<String, String> get _bearer => AuthService.instance.bearerHeaders;
+  static Map<String, String> get _json => AuthService.instance.jsonHeaders;
+
   static Future<List<Car>> getCars() async {
-    final res = await http.get(Uri.parse('$_base/cars'));
+    final res = await http.get(Uri.parse('$_base/cars'), headers: _bearer);
     _check(res);
     return (jsonDecode(res.body) as List<dynamic>)
         .map((j) => Car.fromJson(j as Map<String, dynamic>))
@@ -16,7 +20,7 @@ class ApiService {
   }
 
   static Future<Car> getCar(int id) async {
-    final res = await http.get(Uri.parse('$_base/cars/$id'));
+    final res = await http.get(Uri.parse('$_base/cars/$id'), headers: _bearer);
     _check(res);
     return Car.fromJson(jsonDecode(res.body) as Map<String, dynamic>);
   }
@@ -35,6 +39,7 @@ class ApiService {
     List<({Uint8List bytes, String name})> photos = const [],
   }) async {
     final req = http.MultipartRequest('POST', Uri.parse('$_base/cars'));
+    req.headers.addAll(_bearer);
     req.fields['name'] = name;
     if (brand != null) req.fields['brand'] = brand;
     if (year != null) req.fields['year'] = year.toString();
@@ -57,7 +62,7 @@ class ApiService {
   static Future<Car> updateCar(int id, Map<String, dynamic> fields) async {
     final res = await http.put(
       Uri.parse('$_base/cars/$id'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _json,
       body: jsonEncode(fields),
     );
     _check(res);
@@ -65,12 +70,13 @@ class ApiService {
   }
 
   static Future<void> deleteCar(int id) async {
-    final res = await http.delete(Uri.parse('$_base/cars/$id'));
+    final res = await http.delete(Uri.parse('$_base/cars/$id'), headers: _bearer);
     if (res.statusCode != 204) throw Exception('Delete failed');
   }
 
   static Future<Car> addPhotos(int carId, List<({Uint8List bytes, String name})> photos) async {
     final req = http.MultipartRequest('POST', Uri.parse('$_base/cars/$carId/photos'));
+    req.headers.addAll(_bearer);
     for (final p in photos) {
       req.files.add(http.MultipartFile.fromBytes('photos', p.bytes, filename: p.name));
     }
@@ -81,7 +87,10 @@ class ApiService {
   }
 
   static Future<void> deletePhoto(int carId, int photoId) async {
-    final res = await http.delete(Uri.parse('$_base/cars/$carId/photos/$photoId'));
+    final res = await http.delete(
+      Uri.parse('$_base/cars/$carId/photos/$photoId'),
+      headers: _bearer,
+    );
     if (res.statusCode != 204) throw Exception('Delete photo failed');
   }
 

@@ -75,7 +75,7 @@ class CarCard extends StatelessWidget {
           children: [
             photo != null
                 ? CachedNetworkImage(
-                    imageUrl: '$kUploadsBase/${photo.filename}',
+                    imageUrl: photo.url ?? '$kUploadsBase/${photo.filename}',
                     fit: BoxFit.cover,
                     placeholder: (_, __) => const ColoredBox(color: kBgElevated),
                     errorWidget: (_, __, ___) => _placeholder(),
